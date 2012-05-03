@@ -1,159 +1,192 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Villo API Console - BLEEDING EDGE</title>
+        <title>Villo API Console</title>
         
         <!-- Include jQuery and jqConsole -->
-		<script src="jquery.js" type="text/javascript"></script>
-		<script src="jqconsole.js" type="text/javascript"></script>
-		<!-- Include the bleeding-edge version of Villo -->
-		<script src="https://raw.github.com/villo/villojs/master/villo.js" type="text/javascript"></script>
-		<link rel="stylesheet" type="text/css" href="jqconsole.css">
+		<script src="lib/jquery.js" type="text/javascript"></script>
+		<script src="lib/jqconsole.js" type="text/javascript"></script>
+		<!-- Include our styles -->
+		<link rel="stylesheet" type="text/css" href="lib/jqconsole.css">
 	</head>
 	<body>
-		<div id="console"></div>
-		<script>
-			/*
-			 * API console management: 
-			 */
-			villo.extend({
-				console: {
-					jqconsole: null,
-					edit: false,
-					actions: {
-						/*
-						 * Help Function:
-						 */
-						"help": {
-							run: function(){
-								return true;
-							}
-						},
-						/*
-						 * Clear Screen:
-						 */
-						"cls": {
-							run: function(){
-								villo.console.jqconsole.Reset();
-								villo.console.startPrompt();
-							}
-						},
-						"clear": "cls",
-						"clearscreen": "cls",
-						/*
-						 * Documentation:
-						 */
-						"doc": {
-							run: function(){
-								return true;
-							}
-						},
-						"docs": "doc",
-						"documentation": "doc"
-					},
-					run: function(functionName){
-						//TODO: splice out first word
-						if(this.actions[functionName]){
-							var action = this.actions[functionName];
-							if(typeof(action) === "string"){
-								//Redirect to another function
-								action = this.actions[this.actions[functionName]];
-							}
-							if(action && action.run && typeof(action.run) === "function"){
-								action.run();
-							}else{
-								this.write("Undefined error occured.");
-							}
-						}else{
-							//run as javascript
-							try{
-								this.write(this.inspect(eval.call(null, functionName)));
-							}catch(e){
-								this.write(e);
-							};
-						}
-					},
-					write: function(wstring){
-						//If type is an object, cycle through level one, and display all of the properties and the type.
-						this.jqconsole.Write(wstring + "\n", 'jqconsole-output');
-					},
-					inspect: function(ins){
-						//Do some parsing:
-						if(typeof(ins) === "object"){
-							return JSON.stringify(ins);
-						}else{
-							return ins;
-						}
-						//This method prevents a lot of circular stringify problems, but is very limited:
-						/*
-						if(typeof(ins) === "object"){
-							var returnString = "";
-							//jQuery foreach:
-							$.each(ins, function(key, value) {
-								returnString += ('"' + key + '" (' + typeof(value) + ') \n');
-							});
-							return returnString;
-						}else{
-							return ins;
-						}
-						*/
-					}
-				}
-			});
+		
+		
+		<!--
+			Loader:
+		-->
+		<div id="loader">
+			<div class="modal-backdrop"></div>
+			<div class="modal">
+				<div class="bigger">API Console Setup</div>
+				<hr />
+				
+				<div class="subbigger">Select Your Version Of Villo</div>
+				<div>
+					<div>
+						<input id="radioStable" type="radio" name="version"> 
+						<label for="radioStable">Latest Stable Release (<span id="latestStableVersion">0.9.7</span>)</label>
+					</div>
+					<div>
+						<input id="radioEdge" type="radio" name="version" checked="true"> 
+						<label for="radioEdge">Bleeding edge (<span id="bleedingEdgeVersion"></span>)</label>
+					</div>
+				</div>
+				
+				<div class="subbigger">Enter Your Developer Credentials</div>
+				<div>
+					<!-- We're lazy, and it works -->
+					<table>
+						<tr>
+							<td>
+								<label>API Key</label>
+							</td>
+							<td>
+								<input type="text"> 
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>App ID</label>
+							</td>
+							<td>
+								<input type="text"> 
+							</td>
+						</tr>
+						<tr>
+							<td valign="top">
+								<label>Logging</label>
+							</td>
+							<td>
+								<div>
+									<input id="radioLogOn" type="radio" name="logging"> 
+									<label for="radioLogOn">On</label>
+								</div>
+								<div>
+									<input id="radioLogOff" type="radio" name="logging" checked="true"> 
+									<label for="radioLogOff">Off</label>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="button" onclick="startConsole();">
+					Contine to the Console
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			//Load bleeding-edge version of Villo to get the version:
+			$(function(){
+				var s = document.createElement('script');
+		    	s.type = "text/javascript";
+		        s.async = true;
+		        s.src = "https://raw.github.com/villo/villojs/master/villo.js";
+		        s.addEventListener('load', function (e) {
+		        	//Set the 
+		        	$("#bleedingEdgeVersion").html(villo.version);
+		        	//Delete the Villo instance:
+		        	delete villo;
+		        }, false);
+		        document.getElementsByTagName('head')[0].appendChild(s);
+	        });
 		</script>
-		<script>
-		  $(function () {
-		    villo.console.jqconsole = $('#console').jqconsole("Welcome to the new API console! \n", ">>> ");
-		    //Ctrl+E: Move into edit mode - native multi-line support.
-			villo.console.jqconsole.RegisterShortcut('E', function() {
-				//Turn it on or off:
-				villo.console.edit = !villo.console.edit;
-				if(villo.console.edit === true){
-					this.Write('Multi-line edit mode enabled.\n', 'jqconsole-output');
-				}else{
-					this.Write('Multi-line edit mode disabled.\n', 'jqconsole-output');
-				}
-			});
-            //Replace console.log with our function:
-            window.console = {
-            	log: function () {
-					var strings = [];
-					
-					for (var i = 0; i < arguments.length; i++) {
-						if (typeof(arguments[i] == "object")) {
-							strings.push(JSON.stringify(arguments[i]));
-						} else {
-							strings.push(arguments[i]);
-						}
-					}
-            		villo.console.jqconsole.Write(strings.join(" ") + "\n", "jqconsole-output");
-            	}
-		    };
-		    //Set up the prompt:
-		    villo.console.startPrompt = function () {
-				// Start the prompt with history enabled.
-				villo.console.jqconsole.Prompt(true, function (input) {
-					// Input was had!
-					villo.console.run(input);
-					// Output input with the class jqconsole-output.
-					//jqconsole.Write(input + '\n', 'jqconsole-output');
-					// Restart the prompt.
-					villo.console.startPrompt();
-				}, function(){
+		
+		
+		
+		
+		
+		<!--
+			Console:
+		-->
+		<div id="console"></div>
+		<script type="text/javascript">
+		var startConsole = function(){
+			$("#loader").css("visibility", "hidden");
+			if($("input[@name=version]:checked").attr('id') === "radioEdge"){
+				//Load bleeding edge:
+				var s = document.createElement('script');
+		    	s.type = "text/javascript";
+		        s.async = true;
+		        s.src = "https://raw.github.com/villo/villojs/master/villo.js";
+		        s.addEventListener('load', function (e) {
+		        	//Do Something:
+		        	doneLoading();
+		        }, false);
+		        document.getElementsByTagName('head')[0].appendChild(s);
+		    }else{
+		    	//Load stable:
+				var s = document.createElement('script');
+		    	s.type = "text/javascript";
+		        s.async = true;
+		        s.src = "lib/villo/villo.js";
+		        s.addEventListener('load', function (e) {
+		        	//Do Something:
+		        	doneLoading();
+		        }, false);
+		        document.getElementsByTagName('head')[0].appendChild(s);
+		    }
+		}
+		
+		var doneLoading = function(){
+			//Load console extension
+			$script("lib/villo/console.js", function(){
+				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new API console! \n", ">>> ");
+			    //Ctrl+E: Move into edit mode - native multi-line support.
+				villo.console.jqconsole.RegisterShortcut('E', function() {
+					//Turn it on or off:
+					villo.console.edit = !villo.console.edit;
 					if(villo.console.edit === true){
-						return 0;
+						this.Write('Multi-line edit mode enabled.\n', 'jqconsole-output');
 					}else{
-						return false;
+						this.Write('Multi-line edit mode disabled.\n', 'jqconsole-output');
 					}
 				});
-		    };
-		    villo.console.startPrompt();
-		    
-		  });
+	            //Replace console.log with our function:
+	            window.console = {
+	            	log: function () {
+						var strings = [];
+						
+						for (var i = 0; i < arguments.length; i++) {
+							if (typeof(arguments[i] == "object")) {
+								strings.push(JSON.stringify(arguments[i]));
+							} else {
+								strings.push(arguments[i]);
+							}
+						}
+	            		villo.console.jqconsole.Write(strings.join(" ") + "\n", "jqconsole-output");
+	            	}
+			    };
+			    //Set up the prompt:
+			    villo.console.startPrompt = function () {
+					// Start the prompt with history enabled.
+					villo.console.jqconsole.Prompt(true, function (input) {
+						// Input was had!
+						villo.console.run(input);
+						// Output input with the class jqconsole-output.
+						//jqconsole.Write(input + '\n', 'jqconsole-output');
+						// Restart the prompt.
+						villo.console.startPrompt();
+					}, function(){
+						if(villo.console.edit === true){
+							return 0;
+						}else{
+							return false;
+						}
+					});
+			    };
+			    villo.console.startPrompt();
+		    });
+		}
+		
+		
+		
+		
 		  //Universal callback function for dumping data into the
-            function callback(transport){
-                villo.console.write(transport);
-            }
+			var callback = function(transport){
+			    villo.console.write(transport);
+			}
 		</script>
 	</body>
 </html>

@@ -1,0 +1,122 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', 'Nimbus Sans L', Arial, sans-serif;
+	font-size: 12px;
+}
+/* The console container element */
+#console {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  color: white;
+}
+/* The inner console element. */
+.jqconsole {
+	padding: 10px;
+}
+/* The cursor. */
+.jqconsole-cursor {
+    background-color: gray;
+}
+/* The cursor color when the console looses focus. */
+.jqconsole-blurred .jqconsole-cursor {
+    background-color: #666;
+}
+/* The current prompt text color */
+.jqconsole-prompt {
+    color: #0d0;
+}
+/* The command history */
+.jqconsole-old-prompt {
+    color: #0b0;
+    font-weight: normal;
+}
+/* The text color when in input mode. */
+.jqconsole-input {
+    color: #dd0;
+}
+/* Previously entered input. */
+.jqconsole-old-input {
+    color: #bb0;
+    font-weight: normal;
+}
+/* The text color of the output. */
+.jqconsole-output {
+    color: white;
+}
+
+
+
+
+/*
+ *
+ * 
+ * OTHER STYLES:
+ * 
+ * 
+ */
+/* Font */
+.bigger {
+  font-size: 16px;
+}
+.subbigger {
+	font-size: 14px;
+	margin-top: 15px;
+}
+hr {
+  margin: 10px 0;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid #ffffff;
+}
+/* Button */
+.button {
+	margin-top: 20px;
+	padding: 10px;
+	background-color: rgba(0, 0, 0, 0.3);
+	border: 1px solid white;
+}
+.button:hover {
+	border: 1px solid black;
+	background-color: white;
+}
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10000;
+  background-color: #000000;
+  opacity: 0.5;
+}
+
+.modal {
+  color: #0e0e0e;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 11000;
+  width: 400px;
+  margin: -250px 0 0 -200px;
+  max-height: 500px;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  
+  padding: 30px;
+
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding-box;
+  background-clip: padding-box;
+}
