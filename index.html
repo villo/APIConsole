@@ -16,7 +16,7 @@
 			Loader:
 		-->
 		<div id="loader">
-			<div class="modal-backdrop"></div>
+			<div class="modal-backdrop"><!-- This is just the backdrop. --></div>
 			<div class="modal">
 				<div class="bigger">API Console Setup</div>
 				<hr />
@@ -24,11 +24,11 @@
 				<div class="subbigger">Select Your Version Of Villo</div>
 				<div>
 					<div>
-						<input id="radioStable" type="radio" name="version"> 
+						<input id="radioStable" type="radio" name="version" value="else"> 
 						<label for="radioStable">Latest Stable Release (<span id="latestStableVersion">0.9.7</span>)</label>
 					</div>
 					<div>
-						<input id="radioEdge" type="radio" name="version" checked="true"> 
+						<input id="radioEdge" type="radio" name="version" checked="true" value="radioEdge"> 
 						<label for="radioEdge">Bleeding edge (<span id="bleedingEdgeVersion"></span>)</label>
 					</div>
 				</div>
@@ -42,7 +42,7 @@
 								<label>API Key</label>
 							</td>
 							<td>
-								<input type="text"> 
+								<input id="setApiKey" type="text"> 
 							</td>
 						</tr>
 						<tr>
@@ -50,7 +50,7 @@
 								<label>App ID</label>
 							</td>
 							<td>
-								<input type="text"> 
+								<input id="setAppId" type="text"> 
 							</td>
 						</tr>
 						<tr>
@@ -59,11 +59,11 @@
 							</td>
 							<td>
 								<div>
-									<input id="radioLogOn" type="radio" name="logging"> 
+									<input id="radioLogOn" type="radio" name="logMe" value="true"> 
 									<label for="radioLogOn">On</label>
 								</div>
 								<div>
-									<input id="radioLogOff" type="radio" name="logging" checked="true"> 
+									<input id="radioLogOff" type="radio" name="logMe" checked="true" value="false"> 
 									<label for="radioLogOff">Off</label>
 								</div>
 							</td>
@@ -104,7 +104,7 @@
 		<script type="text/javascript">
 		var startConsole = function(){
 			$("#loader").css("visibility", "hidden");
-			if($("input[@name=version]:checked").attr('id') === "radioEdge"){
+			if($('input:radio[name=version]:checked').val() === "radioEdge"){
 				//Load bleeding edge:
 				var s = document.createElement('script');
 		    	s.type = "text/javascript";
@@ -130,22 +130,45 @@
 		}
 		
 		var doneLoading = function(){
-			//Load console extension
-			$script("lib/villo/console.js", function(){
+			//Call our load function:
+			villo.load({
+				"id": $("#setAppId").val(),
+				"version": "1.0.0",
+				"developer": "Villo & Guests",
+				"type": "desktop",
+				"title": "API Console",
+				"api": $("#setApiKey").val(),
+				"push": true,
+				"verbose": ($('input:radio[name=logMe]:checked').val() === "true") ? true : false
+			});
+			
+			//Load console extension, prevent caching.
+			$script("lib/villo/console.js?" + new Date().getTime(), function(){
 				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new API console! \n", ">>> ");
 			    //Ctrl+E: Move into edit mode - native multi-line support.
 				villo.console.jqconsole.RegisterShortcut('E', function() {
 					//Turn it on or off:
 					villo.console.edit = !villo.console.edit;
 					if(villo.console.edit === true){
-						this.Write('Multi-line edit mode enabled.\n', 'jqconsole-output');
+						this.Writehelp('Multi-line edit mode enabled.\n', 'jqconsole-output');
 					}else{
 						this.Write('Multi-line edit mode disabled.\n', 'jqconsole-output');
 					}
 				});
+				
+				//Ctrl+D: Dump the entire console log back into the console.
+				/*
+				villo.console.jqconsole.RegisterShortcut('D', function() {
+					this.Write(this.Dump(), 'jqconsole-output');
+				});
+				*/
+				
 	            //Replace console.log with our function:
-	            window.console = {
-	            	log: function () {
+	            if(window.console && window.console.log){
+	            	//Keep reference to the original function:
+	            	window.console.realLog = window.console.log;
+	            	//Replace with ours:
+	            	window.console.log = function () {
 						var strings = [];
 						
 						for (var i = 0; i < arguments.length; i++) {
@@ -156,8 +179,25 @@
 							}
 						}
 	            		villo.console.jqconsole.Write(strings.join(" ") + "\n", "jqconsole-output");
+	            		this.realLog(arguments);
 	            	}
-			    };
+	            }else{
+	            	//No console, just create our own:
+		            window.console = {
+		            	log: function () {
+							var strings = [];
+							
+							for (var i = 0; i < arguments.length; i++) {
+								if (typeof(arguments[i] == "object")) {
+									strings.push(JSON.stringify(arguments[i]));
+								} else {
+									strings.push(arguments[i]);
+								}
+							}
+		            		villo.console.jqconsole.Write(strings.join(" ") + "\n", "jqconsole-output");
+		            	}
+				    };
+				}
 			    //Set up the prompt:
 			    villo.console.startPrompt = function () {
 					// Start the prompt with history enabled.
