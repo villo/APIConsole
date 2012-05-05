@@ -144,13 +144,13 @@
 			
 			//Load console extension, prevent caching.
 			$script("lib/villo/console.js?" + new Date().getTime(), function(){
-				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new API console! \n", ">>> ");
+				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new Villo API Console! Type \"help\" if you need some guidance. \n", ">>> ");
 			    //Ctrl+E: Move into edit mode - native multi-line support.
 				villo.console.jqconsole.RegisterShortcut('E', function() {
 					//Turn it on or off:
 					villo.console.edit = !villo.console.edit;
 					if(villo.console.edit === true){
-						this.Writehelp('Multi-line edit mode enabled.\n', 'jqconsole-output');
+						this.Write('Multi-line edit mode enabled.\n', 'jqconsole-output');
 					}else{
 						this.Write('Multi-line edit mode disabled.\n', 'jqconsole-output');
 					}
