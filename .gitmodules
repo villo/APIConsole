@@ -1,6 +1,3 @@
-[submodule "villo"]
-	path = villo
-	url = https://github.com/villo/villoJS.git
 [submodule "villojs"]
 	path = villojs
 	url = https://github.com/villo/villoJS.git
