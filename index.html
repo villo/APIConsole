@@ -117,7 +117,7 @@
 		        });
 		    }else{
 		    	//Load stable:
-				loadScript("lib/villo/villo.js", function(){
+				loadScript("lib/villo-0.9.7.js", function(){
 		        	doneLoading();
 		        });
 		    }
@@ -137,7 +137,7 @@
 			});
 			
 			//Load console extension, prevent caching.
-			loadScript("lib/villo/console.js?" + new Date().getTime(), function(){
+			loadScript("lib/console.js?" + new Date().getTime(), function(){
 				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new Villo API Console! Type \"help\" if you need some guidance. \n", ">>> ");
 			    //Ctrl+E: Move into edit mode - native multi-line support.
 				villo.console.jqconsole.RegisterShortcut('E', function() {
