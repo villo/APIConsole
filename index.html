@@ -77,6 +77,15 @@
 			</div>
 		</div>
 		<script type="text/javascript">
+		//Just to test for this later on.
+		function supports_html5_storage() {
+		  try {
+		    return 'localStorage' in window && window['localStorage'] !== null;
+		  } catch (e) {
+		    return false;
+		  }
+		}
+		
 			//Non-villo script loader:
 			var loadScript = function(src, callback){
 				var s = document.createElement('script');
@@ -90,6 +99,11 @@
 			}
 			//Load bleeding-edge version of Villo to get the version:
 			$(function(){
+				//Get the API key.
+				if(supports_html5_storage()){
+					$("#setApiKey").val(localStorage.getItem("apiconsole.key") || "");
+				}
+				
 				loadScript("https://raw.github.com/villo/villojs/gh-pages/villo.js", function(e){
 					//Set the verison:
 		        	$("#bleedingEdgeVersion").html(villo.version);
@@ -109,6 +123,11 @@
 		<div id="console"></div>
 		<script type="text/javascript">
 		var startConsole = function(){
+			//Store the API key.
+			if(supports_html5_storage()){
+				localStorage.setItem("apiconsole.key", $("#setApiKey").val());
+			}
+			
 			$("#loader").css("visibility", "hidden");
 			if($('input:radio[name=version]:checked').val() === "radioEdge"){
 				//Load bleeding edge:
@@ -132,13 +151,13 @@
 				"type": "desktop",
 				"title": "API Console",
 				"api": $("#setApiKey").val(),
-				"push": true,
 				"verbose": ($('input:radio[name=logMe]:checked').val() === "true") ? true : false
 			});
 			
 			//Load console extension, prevent caching.
 			loadScript("lib/console.js?" + new Date().getTime(), function(){
 				villo.console.jqconsole = $('#console').jqconsole("Welcome to the new Villo API Console! Type \"help\" if you need some guidance. \n", ">>> ");
+			    
 			    //Ctrl+E: Move into edit mode - native multi-line support.
 				villo.console.jqconsole.RegisterShortcut('E', function() {
 					//Turn it on or off:
